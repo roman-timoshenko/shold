@@ -1,0 +1,44 @@
+<html>
+<head>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+</head>
+
+<body>
+<form method="get" action="">
+    <label for="name">Village name:</label><input type="text" id="name"/>
+    <table id="distances">
+        <thead>
+           <tr>
+               <td>village</td>
+               <td>distance to</td>
+           </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <select name="village[]" id="village[]">
+                        {% for village in villages %}
+                        <option value="{{ village.id }}">{{ village.name }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td><input name="distance[]" id="distance[]"/></td>
+            </tr>
+        </tbody>
+    </table>
+    <input type="button" id="add" name="add" value="Add row"/>
+    <input type="submit"/>
+</form>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#add").click(function() {
+            $("#distances").find("tbody>tr:last").clone(true)
+                    .insertAfter("#distances tbody>tr:last");
+            return false;
+        });
+    });
+</script>
+
+</body>
+</html>
