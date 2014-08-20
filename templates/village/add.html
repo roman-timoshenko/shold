@@ -4,41 +4,47 @@
 </head>
 
 <body>
+<h1>Add a village</h1>
 <form method="get" action="">
-    <label for="name">Village name:</label><input type="text" id="name"/>
-    <table id="distances">
-        <thead>
-           <tr>
-               <td>village</td>
-               <td>distance to</td>
-           </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>
-                    <select name="village[]" id="village[]">
-                        {% for village in villages %}
-                        <option value="{{ village.id }}">{{ village.name }}</option>
-                        {% endfor %}
-                    </select>
-                </td>
-                <td><input name="distance[]" id="distance[]"/></td>
-            </tr>
-        </tbody>
-    </table>
-    <input type="button" id="add" name="add" value="Add row"/>
+    {% csrf_token %}
+    <label for="name">Village name:&nbsp;</label><input name="name" id="name">
+    <div>
+        <p>
+        <label for="village1">Distance to &nbsp;</label>
+        <select name="village1" id="village1">
+            {% for village in villages %}
+            <option value="{{ village.id }}">{{ village.name }}</option>
+            {% endfor %}
+        </select>
+        <label for="distance1">&nbsp;:&nbsp;</label>
+        <input name="distance1" id="distance1"/>
+        </p>
+
+        <p>
+        <label for="village2">Distance to &nbsp;</label>
+        <select name="village2" id="village2">
+            {% for village in villages %}
+            <option value="{{ village.id }}">{{ village.name }}</option>
+            {% endfor %}
+        </select>
+        <label for="distance2">&nbsp;:&nbsp;</label>
+        <input name="distance2" id="distance2"/>
+        </p>
+
+        <p>
+        <label for="village3">Distance to &nbsp;</label>
+        <select name="village3" id="village3">
+            {% for village in villages %}
+            <option value="{{ village.id }}">{{ village.name }}</option>
+            {% endfor %}
+        </select>
+        <label for="distance3">&nbsp;:&nbsp;</label>
+        <input name="distance3" id="distance3"/>
+        </p>
+    </div>
+
     <input type="submit"/>
 </form>
-
-<script type="text/javascript">
-    $(document).ready(function() {
-        $("#add").click(function() {
-            $("#distances").find("tbody>tr:last").clone(true)
-                    .insertAfter("#distances tbody>tr:last");
-            return false;
-        });
-    });
-</script>
 
 </body>
 </html>
