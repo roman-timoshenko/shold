@@ -1,3 +1,4 @@
 from django.contrib import admin
+from village.models import Village
 
-# Register your models here.
+admin.site.register(Village)

@@ -1,22 +1,45 @@
 from django import forms
 from django.utils.translation import ugettext, ugettext_lazy as _
 import re
+from village.models import Village
+
+DISTANCE_REGEX = '(:?(:?(?P<hours>\d+)\:)?(?P<minutes>\d+)\:)?(?P<seconds>\d+)'
 
 
-class CreateVillageForm(forms.BaseForm):
-    username = forms.RegexField(label=_("Username"), max_length=30,
-        regex=r'^[\w.@+-]+$',
-        help_text=_("Required. 30 characters or fewer. Letters, digits and "
-                      "@/./+/-/_ only."),
-        error_messages={
-            'invalid': _("This value may contain only letters, numbers and "
-                         "@/./+/-/_ characters.")})
+class CreateVillageForm(forms.Form):
+    name = forms.RegexField(label=_("village name"), max_length=128,
+                            regex=r'^[\w.@+-]+$',
+                            help_text=_("required, 128 characters or fewer, letters, digits and "
+                                        "@/./+/-/_ only."),
+                            error_messages={
+                                'invalid': _("This value may contain only letters, numbers and "
+                                             "@/./+/-/_ characters.")})
+
+    a = forms.ModelChoiceField(queryset=Village.objects.all(), label=_('first village'), required=True)
+    b = forms.ModelChoiceField(queryset=Village.objects.all(), label=_('second village'), required=True)
+    c = forms.ModelChoiceField(queryset=Village.objects.all(), label=_('third village'), required=True)
+
+    toa = forms.RegexField(label=_('time from first village'), regex=DISTANCE_REGEX,
+                           help_text=_('required, format is [[hours:]minutes:]seconds'),
+                           initial=0, required=True)
+    tob = forms.RegexField(label=_('time from second village'), regex=DISTANCE_REGEX,
+                           help_text=_('required, format is [[hours:]minutes:]seconds'),
+                           initial=0, required=True)
+    toc = forms.RegexField(label=_('time from third village'), regex=DISTANCE_REGEX,
+                           help_text=_('required, format is [[hours:]minutes:]seconds'),
+                           initial=0, required=True)
+
+    def get_toa(self):
+        return parse_value(self, 'toa')
+
+    def get_tob(self):
+        return parse_value(self, 'tob')
+
+    def get_toc(self):
+        return parse_value(self, 'toc')
 
 
 class InitVillagesForm(forms.Form):
-
-    DISTANCE_REGEX = '(:?(:?(?P<hours>\d+)\:)?(?P<minutes>\d+)\:)?(?P<seconds>\d+)'
-
     a = forms.CharField(label=_('first village name'), max_length=128, required=True)
     b = forms.CharField(label=_('second village name'), max_length=128, required=True)
     c = forms.CharField(label=_('third village name'), max_length=128, required=True)
@@ -42,7 +65,7 @@ class InitVillagesForm(forms.Form):
 
 
 def parse_value(self, field):
-    regex = re.compile(self.DISTANCE_REGEX)
+    regex = re.compile(DISTANCE_REGEX)
     data = regex.match(self.cleaned_data[field])
     hours = data.group('hours') or 0
     minutes = data.group('minutes') or 0

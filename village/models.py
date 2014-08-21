@@ -1,8 +1,11 @@
+import user
+from django.contrib.auth.models import User
 from django.db.models import Model
 from django.db.models.fields import CharField, DateTimeField, FloatField
+from django.db.models.fields.related import ForeignKey
 from django.utils.translation import ugettext_lazy as _
 
-from village.utils import find_circle_intersections
+from village.utils import find_circle_intersections, get_fourth_point
 
 
 class Village(Model):
@@ -10,6 +13,7 @@ class Village(Model):
     x = FloatField(verbose_name=_('coordinate x'))
     y = FloatField(verbose_name=_('coordinate y'))
     created = DateTimeField(verbose_name=_('created'), auto_now=True, auto_now_add=True)
+    owner = ForeignKey(User, verbose_name=_('owner'), db_constraint=False, null=True, blank=True)
 
     def __unicode__(self):
         return u'%s (%.3f, %.3f)' % (self.name, self.x, self.y)

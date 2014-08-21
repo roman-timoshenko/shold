@@ -1,6 +1,10 @@
 <h1>Initialize Villages</h1>
 <form method="post" action="">
     {% csrf_token %}
-    {{ form.as_p }}
+    <table>
+        <tbody>
+            {{ form.as_table }}
+        </tbody>
+    </table>
     <input type="submit"/>
 </form>

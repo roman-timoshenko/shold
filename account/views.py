@@ -10,6 +10,7 @@ from django.template.response import TemplateResponse
 def profile(request):
     return TemplateResponse(request, "registration/profile.html", {"user": request.user})
 
+
 def register(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)

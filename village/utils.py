@@ -66,7 +66,7 @@ def find_circle_intersections(x0, y0, r0, x1, y1, r1):
     return (xa3, ya3), (xb3, yb3)
 
 
-def get_third_point(a, b, c, ad, bd, cd, epsilon=DEFAULT_EPSILON):
+def get_fourth_point(a, b, c, ad, bd, cd, epsilon=DEFAULT_EPSILON):
     """
     Finds fourth point by three points and distance from those points to fourth point.
     :param a: tuple, point one, e.g. (0, 0)

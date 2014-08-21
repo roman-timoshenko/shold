@@ -1,41 +1,10 @@
 <h1>Add a village</h1>
 <form method="post" action="">
     {% csrf_token %}
-    <label for="name">Village name:&nbsp;</label><input name="name" id="name">
-    <div>
-        <p>
-        <label for="village1">Distance to &nbsp;</label>
-        <select name="village1" id="village1">
-            {% for village in villages %}
-            <option value="{{ village.id }}">{{ village.name }}</option>
-            {% endfor %}
-        </select>
-        <label for="distance1">&nbsp;:&nbsp;</label>
-        <input name="distance1" id="distance1"/>
-        </p>
-
-        <p>
-        <label for="village2">Distance to &nbsp;</label>
-        <select name="village2" id="village2">
-            {% for village in villages %}
-            <option value="{{ village.id }}">{{ village.name }}</option>
-            {% endfor %}
-        </select>
-        <label for="distance2">&nbsp;:&nbsp;</label>
-        <input name="distance2" id="distance2"/>
-        </p>
-
-        <p>
-        <label for="village3">Distance to &nbsp;</label>
-        <select name="village3" id="village3">
-            {% for village in villages %}
-            <option value="{{ village.id }}">{{ village.name }}</option>
-            {% endfor %}
-        </select>
-        <label for="distance3">&nbsp;:&nbsp;</label>
-        <input name="distance3" id="distance3"/>
-        </p>
-    </div>
-
+    <table>
+        <tbody>
+            {{ form.as_table }}
+        </tbody>
+    </table>
     <input type="submit"/>
 </form>

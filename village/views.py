@@ -1,10 +1,10 @@
 from django.http.response import HttpResponseRedirect
-from django.shortcuts import render
 
 # Create your views here.
 from django.template.response import TemplateResponse
-from village.forms import InitVillagesForm
+from village.forms import InitVillagesForm, CreateVillageForm
 from village.models import Village, calculate_villages
+from village.utils import get_fourth_point
 
 
 def list(request):
@@ -19,10 +19,23 @@ def view(request, village_id):
 
 def add(request):
     if request.method == 'POST':
-        #TODO: check and save village
-        village = Village(id=1)
-        return HttpResponseRedirect('/villages/view/%s/' % village.id)
-    return TemplateResponse(request, 'village/add.html', {'villages' : Village.objects.all()})
+        form = CreateVillageForm(request.POST)
+        if form.is_valid():
+            a = form.cleaned_data['a']
+            b = form.cleaned_data['b']
+            c = form.cleaned_data['c']
+            #TODO: check and save village
+            try:
+                point = get_fourth_point((a.x, a.y), (b.x, b.y), (c.x, c.y),
+                                 form.get_toa(), form.get_tob(), form.get_toc())
+                village = Village(name=form.cleaned_data['name'], x=point[0], y=point[1])
+                print(village)
+                return HttpResponseRedirect('/villages/view/%s/' % village.id)
+            except ValueError as e:
+                form.errors['__all__'] = form.error_class([e.message])
+    else:
+        form = CreateVillageForm()
+    return TemplateResponse(request, 'village/add.html', {'form': form})
 
 
 def init(request):
