@@ -1,7 +1,8 @@
 from django import forms
 from django.utils.translation import ugettext, ugettext_lazy as _
 import re
-from village.models import Village
+from village.models import Village, calculate_villages
+from village.utils import get_fourth_point
 
 DISTANCE_REGEX = '(:?(:?(?P<hours>\d+)\:)?(?P<minutes>\d+)\:)?(?P<seconds>\d+)'
 
@@ -29,14 +30,30 @@ class CreateVillageForm(forms.Form):
                            help_text=_('required, format is [[hours:]minutes:]seconds'),
                            initial=0, required=True)
 
-    def get_toa(self):
+    def clean_toa(self):
         return parse_value(self, 'toa')
 
-    def get_tob(self):
+    def clean_tob(self):
         return parse_value(self, 'tob')
 
-    def get_toc(self):
+    def clean_toc(self):
         return parse_value(self, 'toc')
+
+    def clean(self):
+        cleaned_data = super(CreateVillageForm, self).clean()
+        a = cleaned_data['a']
+        b = cleaned_data['b']
+        c = cleaned_data['c']
+        try:
+            point = get_fourth_point((a.x, a.y), (b.x, b.y), (c.x, c.y),
+                                     cleaned_data['toa'], cleaned_data['tob'], cleaned_data['toc'])
+            cleaned_data['village'] = Village(name=cleaned_data['name'], x=point[0], y=point[1])
+        except ValueError:
+            raise forms.ValidationError(_('village position cannot be calculated, please, verify source data'))
+        return cleaned_data
+
+    def save(self):
+        self.cleaned_data['village'].save()
 
 
 class InitVillagesForm(forms.Form):
@@ -54,14 +71,28 @@ class InitVillagesForm(forms.Form):
                           help_text=_('required, format is [[hours:]minutes:]seconds'),
                           initial=0, required=True)
 
-    def get_ab(self):
+    def clean_ab(self):
         return parse_value(self, 'ab')
 
-    def get_bc(self):
+    def clean_bc(self):
         return parse_value(self, 'bc')
 
-    def get_ca(self):
+    def clean_ca(self):
         return parse_value(self, 'ca')
+
+    def clean(self):
+        cleaned_data = super(InitVillagesForm, self).clean()
+        try:
+            villages = calculate_villages(cleaned_data['a'], cleaned_data['b'], cleaned_data['c'],
+                                          cleaned_data['ab'], cleaned_data['bc'], cleaned_data['ca'], )
+            cleaned_data['villages'] = villages
+        except ValueError:
+            raise forms.ValidationError(_('village positions are impossible, please, verify source data'))
+        return cleaned_data
+
+    def save(self):
+        for village in self.cleaned_data['villages']:
+            village.save()
 
 
 def parse_value(self, field):
