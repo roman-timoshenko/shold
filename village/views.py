@@ -1,41 +1,35 @@
-from django.http.response import HttpResponseRedirect
-
 # Create your views here.
-from django.template.response import TemplateResponse
+import json
+
+from django.http import HttpResponse
+from django.views.generic import FormView
+
 from village.forms import InitVillagesForm, CreateVillageForm
 from village.models import Village
 
 
-def list(request):
-    villages = Village.objects.all()
-    return TemplateResponse(request, "village/list.html", {'villages': villages})
+class AddVillageView(FormView):
+    form_class = CreateVillageForm
+    success_url = '/villages/'
+    template_name = 'village/add.html'
+
+    def form_valid(self, form):
+        form.save()
+        return super(AddVillageView, self).form_valid(form)
 
 
-def view(request, village_id):
-    village = Village.objects.get(pk=village_id)
-    return TemplateResponse(request, "village/view.html", {'village': village})
+class InitVillagesView(FormView):
+    form_class = InitVillagesForm
+    success_url = '/villages/'
+    template_name = 'village/init.html'
+
+    def form_valid(self, form):
+        form.save()
+        return super(InitVillagesView, self).form_valid(form)
 
 
-def add(request):
-    if request.method == 'POST':
-        form = CreateVillageForm(request.POST)
-        if form.is_valid():
-            form.save()
-            village = form.cleaned_data['village']
-            return HttpResponseRedirect('/villages/view/%s/' % village.id)
-    else:
-        form = CreateVillageForm()
-    return TemplateResponse(request, 'village/add.html', {'form': form})
+def calculate_distance(request, a, b):
+    a = Village.objects.get(pk=a)
+    b = Village.objects.get(pk=b)
 
-
-def init(request):
-    if request.method == 'POST':
-        form = InitVillagesForm(request.POST)
-        if form.is_valid():
-            if Village.objects.count() > 0:
-                Village.objects.all().delete()
-            form.save()
-            return HttpResponseRedirect('/villages/list/')
-    else:
-        form = InitVillagesForm()
-    return TemplateResponse(request, 'village/init.html', {'form': form})
+    return HttpResponse(json.dumps({'a': a, 'b': b}), content_type='application/json')

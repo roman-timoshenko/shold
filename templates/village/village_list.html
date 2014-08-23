@@ -1,6 +1,6 @@
 <h1>Village List</h1>
 <ul>
 {% for village in villages %}
-    <li>{{ village }}</li>
+    <li><a href="{{ village.id }}/">{{ village }}</a></li>
 {% endfor %}
 </ul>

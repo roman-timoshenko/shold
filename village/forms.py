@@ -91,6 +91,7 @@ class InitVillagesForm(forms.Form):
         return cleaned_data
 
     def save(self):
+        Village.objects.all().delete()
         for village in self.cleaned_data['villages']:
             village.save()
 
