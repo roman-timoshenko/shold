@@ -1,6 +1,11 @@
-<h1>Village List</h1>
-<ul>
-{% for village in villages %}
-    <li><a href="{{ village.id }}/">{{ village }}</a></li>
-{% endfor %}
-</ul>
+{% extends "base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+    <h1>Village List</h1>
+    <ul>
+    {% for village in villages %}
+        <li><a href="{{ village.id }}/">{{ village }}</a></li>
+    {% endfor %}
+    </ul>
+{% endblock %}

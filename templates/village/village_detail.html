@@ -1,2 +1,7 @@
-<h1>Village {{ village.name }}</h1>
-{{ village.name }}&nbsp;({{ village.x|floatformat:3 }}, {{ village.y|floatformat:3 }})
+{% extends "base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+    <h1>Village {{ village.name }}</h1>
+    {{ village.name }}&nbsp;({{ village.x|floatformat:3 }}, {{ village.y|floatformat:3 }})
+{% endblock %}

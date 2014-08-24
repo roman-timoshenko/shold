@@ -31,13 +31,13 @@ class CreateVillageForm(forms.Form):
                            initial=0, required=True)
 
     def clean_toa(self):
-        return parse_value(self, 'toa')
+        return parse_distance_value(self, 'toa')
 
     def clean_tob(self):
-        return parse_value(self, 'tob')
+        return parse_distance_value(self, 'tob')
 
     def clean_toc(self):
-        return parse_value(self, 'toc')
+        return parse_distance_value(self, 'toc')
 
     def clean(self):
         cleaned_data = super(CreateVillageForm, self).clean()
@@ -72,13 +72,13 @@ class InitVillagesForm(forms.Form):
                           initial=0, required=True)
 
     def clean_ab(self):
-        return parse_value(self, 'ab')
+        return parse_distance_value(self, 'ab')
 
     def clean_bc(self):
-        return parse_value(self, 'bc')
+        return parse_distance_value(self, 'bc')
 
     def clean_ca(self):
-        return parse_value(self, 'ca')
+        return parse_distance_value(self, 'ca')
 
     def clean(self):
         cleaned_data = super(InitVillagesForm, self).clean()
@@ -96,11 +96,20 @@ class InitVillagesForm(forms.Form):
             village.save()
 
 
-def parse_value(self, field):
+def parse_distance_value(self, field):
+    return parse_distance(self.cleaned_data[field])
+
+def parse_distance(value):
     regex = re.compile(DISTANCE_REGEX)
-    data = regex.match(self.cleaned_data[field])
+    data = regex.match(value)
     hours = data.group('hours') or 0
     minutes = data.group('minutes') or 0
     seconds = data.group('seconds')
     result = int(hours) * 3600 + int(minutes) * 60 + int(seconds)
     return result
+
+def format_distance(value):
+    hours = int(value / 3600)
+    minutes = int((value % 3600) / 60)
+    seconds = value % 60
+    return u'%02d:%02d:%02d' % (hours, minutes, seconds)

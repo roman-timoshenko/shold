@@ -4,8 +4,9 @@ import json
 from django.http import HttpResponse
 from django.views.generic import FormView
 
-from village.forms import InitVillagesForm, CreateVillageForm
+from village.forms import InitVillagesForm, CreateVillageForm, format_distance
 from village.models import Village
+from village.utils import get_distance
 
 
 class AddVillageView(FormView):
@@ -32,4 +33,16 @@ def calculate_distance(request, a, b):
     a = Village.objects.get(pk=a)
     b = Village.objects.get(pk=b)
 
-    return HttpResponse(json.dumps({'a': a, 'b': b}), content_type='application/json')
+    data = {
+        'a': {
+            'id': a.id,
+            'name': a.name
+        },
+        'b': {
+            'id': b.id,
+            'name': b.name
+        },
+        'distance': format_distance(get_distance((a.x, a.y), (b.x, b.y)))
+    }
+    response = json.dumps(data, sort_keys=True, indent=4, separators=(',', ': '))
+    return HttpResponse(response, content_type='application/json')

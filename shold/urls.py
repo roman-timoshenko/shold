@@ -1,15 +1,16 @@
 from django.conf.urls import patterns, include, url
 
 from django.contrib import admin
+from django.views.generic import RedirectView
+
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'shold.views.home', name='home'),
-    # url(r'^blog/', include('blog.urls')),
-
-    url(r'^accounts/', include('account.urls')),
-    url(r'^villages/', include('village.urls')),
+    url(r'^password_change/done/', RedirectView.as_view(
+        url='/profile/'), name='password_change_done'),
 
     url(r'^admin/', include(admin.site.urls)),
+
+    url(r'^accounts/', include('account.urls', namespace='account', app_name='account')),
+    url(r'^villages/', include('village.urls', namespace='village', app_name='village')),
 )
