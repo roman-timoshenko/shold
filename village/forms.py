@@ -1,8 +1,11 @@
-from django import forms
-from django.utils.translation import ugettext, ugettext_lazy as _
 import re
+
+from django import forms
+from django.utils.translation import ugettext_lazy as _
+
 from village.models import Village, calculate_villages
-from village.utils import get_fourth_point
+from village.utils import get_fourth_point, get_distance
+
 
 DISTANCE_REGEX = '(:?(:?(?P<hours>\d+)\:)?(?P<minutes>\d+)\:)?(?P<seconds>\d+)'
 
@@ -16,17 +19,29 @@ class CreateVillageForm(forms.Form):
                                 'invalid': _("This value may contain only letters, numbers and "
                                              "@/./+/-/_ characters.")})
 
-    a = forms.ModelChoiceField(queryset=Village.objects.all(), label=_('first village'), required=True)
+    id_id = forms.RegexField(label=_("village id"), max_length=12,
+                            regex=r'^[\d]+$',
+                            help_text=_("required, 12 characters or fewer, digits only."),
+                            error_messages={
+                                'invalid': _("This value may contain only numbers characters.")})
+
+
+
+    a = forms.ModelChoiceField(queryset=Village.objects.all(), label=_('first village'), required=True) # , error_messages={'invalid': _('must have')}
+
+    toa = forms.RegexField(label=_('time to first village'), regex=DISTANCE_REGEX,
+                           help_text=_('required, format is [[hours:]minutes:]seconds'),
+                           initial=0, required=True)
+
     b = forms.ModelChoiceField(queryset=Village.objects.all(), label=_('second village'), required=True)
+
+    tob = forms.RegexField(label=_('time to second village'), regex=DISTANCE_REGEX,
+                           help_text=_('required, format is [[hours:]minutes:]seconds'),
+                           initial=0, required=True)
+
     c = forms.ModelChoiceField(queryset=Village.objects.all(), label=_('third village'), required=True)
 
-    toa = forms.RegexField(label=_('time from first village'), regex=DISTANCE_REGEX,
-                           help_text=_('required, format is [[hours:]minutes:]seconds'),
-                           initial=0, required=True)
-    tob = forms.RegexField(label=_('time from second village'), regex=DISTANCE_REGEX,
-                           help_text=_('required, format is [[hours:]minutes:]seconds'),
-                           initial=0, required=True)
-    toc = forms.RegexField(label=_('time from third village'), regex=DISTANCE_REGEX,
+    toc = forms.RegexField(label=_('time to third village'), regex=DISTANCE_REGEX,
                            help_text=_('required, format is [[hours:]minutes:]seconds'),
                            initial=0, required=True)
 
@@ -96,6 +111,29 @@ class InitVillagesForm(forms.Form):
             village.save()
 
 
+class CalculateTimeForm(forms.Form):
+
+    a = forms.ModelChoiceField(queryset=Village.objects.all(), label=_('first village'), required=True)
+    b = forms.ModelChoiceField(queryset=Village.objects.all(), label=_('second village'), required=True)
+
+    distance = None
+    def clean(self):
+        cleaned_data = super(CalculateTimeForm, self).clean()
+        a = cleaned_data['a']
+        b = cleaned_data['b']
+        try:
+            distance = get_distance((a.x, a.y), (b.x, b.y))
+#            cleaned_data['village'] = Village
+#            cleaned_data['a'] = Village(name=cleaned_data['name'], x=distance)
+
+        except ValueError:
+            raise forms.ValidationError(_('one or more village have not right coord, please, verify source data'))
+        return cleaned_data
+
+#    def save(self):
+#        self.cleaned_data['village'].save()
+
+
 def parse_distance_value(self, field):
     return parse_distance(self.cleaned_data[field])
 
@@ -113,3 +151,10 @@ def format_distance(value):
     minutes = int((value % 3600) / 60)
     seconds = value % 60
     return u'%02d:%02d:%02d' % (hours, minutes, seconds)
+
+def transfer_time(distance):
+    hours = round( distance // 3600)
+    minutes = (round(distance) // 60) - hours * 60
+    seconds = round(distance - minutes * 60 - hours *3600)
+    result = hours+':'+minutes+':'+seconds
+    return result

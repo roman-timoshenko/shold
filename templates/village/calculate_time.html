@@ -1,0 +1,21 @@
+{% extends "base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<h1>View distance between 2 villages</h1>
+
+<form method="post" action="">
+    {% csrf_token %}
+    <table>
+        <tbody>
+            {{ form.as_table }}
+        </tbody>
+    </table>
+    <input type="submit"/>
+</form>
+    {{ distance }} {{ distance_x2 }} {{ distance_x3 }}
+    {{ distance_x4 }}  {{ distance_x5 }}  {{ distance_x6 }}
+<br><br><br><br>
+
+<a href="/villages/add/">Add new village to BD</a>
+{% endblock %}

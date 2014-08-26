@@ -90,11 +90,14 @@ def get_fourth_point(a, b, c, ad, bd, cd, epsilon=DEFAULT_EPSILON):
     if math.fabs(distance_to_first - distance_to_second) < epsilon:
         raise ValueError('cannot find intersection point correctly, please, verify data')
 
-    if math.fabs(distance_to_first - cd) < epsilon:
+    if math.fabs(round(distance_to_first) - cd) < (epsilon +1):
         return first
-    if math.fabs(distance_to_second - cd) < epsilon:
+    if math.fabs(round(distance_to_second) - cd) < (epsilon+1):
         return second
-
+#    if math.fabs(distance_to_second - cd) > epsilon:
+#        first_second=(distance_to_first, distance_to_second)
+#        first.y=
+#        return first_second
     raise ValueError('intersection point cannot be found, please, verify data')
 
 # x1 = 0
