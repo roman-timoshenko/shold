@@ -1,4 +1,3 @@
-import user
 from django.contrib.auth.models import User
 from django.db.models import Model
 from django.db.models.fields import CharField, DateTimeField, FloatField, IntegerField
@@ -9,15 +8,15 @@ from village.utils import find_circle_intersections
 
 
 class Village(Model):
+    id = IntegerField(verbose_name=_('village id'), primary_key=True, unique=True, blank=False, null=False)
     name = CharField(max_length=128, verbose_name=_('village name'), unique=True, blank=False, db_index=True)
     x = FloatField(verbose_name=_('coordinate x'))
     y = FloatField(verbose_name=_('coordinate y'))
     created = DateTimeField(verbose_name=_('created'), auto_now=True, auto_now_add=True)
     owner = ForeignKey(User, verbose_name=_('owner'), db_constraint=False, null=True, blank=True)
-    id_id = IntegerField(verbose_name=_('village id'), unique=True, blank=False)
 
     def __unicode__(self):
-        return u'%s (%s)' % (self.name, self.id_id)
+        return u'[%000000000d] %s' % (self.id, self.name)
 
     class Meta:
         verbose_name = _('village')
@@ -26,7 +25,7 @@ class Village(Model):
         index_together = (('x', 'y'),)
 
 
-def calculate_villages(a, b, c, ab, bc, ca):
+def calculate_villages(a, b, c, a_id, b_id, c_id, ab, bc, ca):
     """
     Calculates three villages and creates three corresponding Village objects.
     Village A becomes the origin.
@@ -48,7 +47,7 @@ def calculate_villages(a, b, c, ab, bc, ca):
     """
     intersections = find_circle_intersections(0, 0, ca, ab, 0, bc)
     intersection = intersections[0]
-    village_a = Village(name=a, x=0, y=0)
-    village_b = Village(name=b, x=ab, y=0)
-    village_c = Village(name=c, x=intersection[0], y=intersection[1])
+    village_a = Village(id=a_id, name=a, x=0, y=0)
+    village_b = Village(id=b_id, name=b, x=ab, y=0)
+    village_c = Village(id=c_id, name=c, x=intersection[0], y=intersection[1])
     return village_a, village_b, village_c

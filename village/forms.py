@@ -19,13 +19,8 @@ class CreateVillageForm(forms.Form):
                                 'invalid': _("This value may contain only letters, numbers and "
                                              "@/./+/-/_ characters.")})
 
-    id_id = forms.RegexField(label=_("village id"), max_length=12,
-                            regex=r'^[\d]+$',
-                            help_text=_("required, 12 characters or fewer, digits only."),
-                            error_messages={
-                                'invalid': _("This value may contain only numbers characters.")})
-
-
+    id = forms.IntegerField(label=_("village id"),
+                            help_text=_("required, 12 characters or fewer, digits only."))
 
     a = forms.ModelChoiceField(queryset=Village.objects.all(), label=_('first village'), required=True) # , error_messages={'invalid': _('must have')}
 
@@ -62,7 +57,7 @@ class CreateVillageForm(forms.Form):
         try:
             point = get_fourth_point((a.x, a.y), (b.x, b.y), (c.x, c.y),
                                      cleaned_data['toa'], cleaned_data['tob'], cleaned_data['toc'])
-            cleaned_data['village'] = Village(name=cleaned_data['name'], x=point[0], y=point[1])
+            cleaned_data['village'] = Village(id=cleaned_data['id'], name=cleaned_data['name'], x=point[0], y=point[1])
         except ValueError:
             raise forms.ValidationError(_('village position cannot be calculated, please, verify source data'))
         return cleaned_data
@@ -72,8 +67,11 @@ class CreateVillageForm(forms.Form):
 
 
 class InitVillagesForm(forms.Form):
+    a_id = forms.IntegerField(label=_('first village id'), required=True)
     a = forms.CharField(label=_('first village name'), max_length=128, required=True)
+    b_id = forms.IntegerField(label=_('second village id'), required=True)
     b = forms.CharField(label=_('second village name'), max_length=128, required=True)
+    c_id = forms.IntegerField(label=_('third village id'), required=True)
     c = forms.CharField(label=_('third village name'), max_length=128, required=True)
 
     ab = forms.RegexField(label=_('time from first to second village'), regex=DISTANCE_REGEX,
@@ -99,6 +97,7 @@ class InitVillagesForm(forms.Form):
         cleaned_data = super(InitVillagesForm, self).clean()
         try:
             villages = calculate_villages(cleaned_data['a'], cleaned_data['b'], cleaned_data['c'],
+                                          cleaned_data['a_id'], cleaned_data['b_id'], cleaned_data['c_id'],
                                           cleaned_data['ab'], cleaned_data['bc'], cleaned_data['ca'], )
             cleaned_data['villages'] = villages
         except ValueError:
